@@ -1,8 +1,7 @@
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
-#include <wx/sound.h> 
+#include <windows.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
 
 class MyGLCanvas : public wxGLCanvas {
 public:
@@ -29,13 +28,12 @@ public:
             --m_gaugeValue;
         }
         if (m_gaugeValue == 0) {
-            m_points += 200; // sAdd points when the gauge reaches 0
+            m_points += 200; // Add points when the gauge reaches 0
             m_gaugeValue = 10; // Resets bar
         }
         Refresh(); // Redraw the canvas
     }
 
-    // Getter functions to access points and gauge value
     int GetPoints() const { return m_points; }
     int GetGaugeValue() const { return m_gaugeValue; }
 
@@ -48,35 +46,94 @@ private:
         glClear(GL_COLOR_BUFFER_BIT);
         glLoadIdentity();
 
-        // Get the current canvas size
-        int width, height;
-        GetClientSize(&width, &height);
-
-        // Draw light blue rectangle (smaller and positioned higher)
-        glColor3f(0.678f, 0.847f, 0.902f); // Light blue color
+        // Background
+        glColor3f(0.53f, 0.81f, 0.90f);
         glBegin(GL_QUADS);
-        glVertex2f(-0.6f, 0.6f);  // Top-left
-        glVertex2f(0.6f, 0.6f);   // Top-right
-        glVertex2f(0.6f, 0.2f);   // Bottom-right
-        glVertex2f(-0.6f, 0.2f);  // Bottom-left
+        glVertex2f(-1.0f, 1.0f);
+        glVertex2f(1.0f, 1.0f);
+        glVertex2f(1.0f, -1.0f);
+        glVertex2f(-1.0f, -1.0f);
         glEnd();
 
-        // Draw the gauge bar (positioned lower)
-        float gaugeWidth = (1.6f * m_gaugeValue) / 10.0f; // Width scales with gauge value
-        glColor3f(1.0f, 0.0f, 0.0f); // Red
-        glBegin(GL_QUADS);
-        glVertex2f(-0.8f, -0.2f);           // Top-left
-        glVertex2f(-0.8f + gaugeWidth, -0.2f); // Top-right
-        glVertex2f(-0.8f + gaugeWidth, -0.3f); // Bottom-right
-        glVertex2f(-0.8f, -0.3f);           // Bottom-left
+        // Fish body
+        glColor3f(1.0f, 0.75f, 0.30f);
+        glBegin(GL_POLYGON);
+        // Front part
+        glVertex2f(-0.5f, 0.25f);  // Top-left
+        glVertex2f(-0.25f, 0.45f); // Curve top-left
+        glVertex2f(0.25f, 0.45f);  // Curve top-right
+        glVertex2f(0.5f, 0.25f);   // Top-right
+        // Back part
+        glVertex2f(0.5f, -0.25f);  // Bottom-right
+        glVertex2f(0.25f, -0.45f); // Curve bottom-right
+        glVertex2f(-0.25f, -0.45f); // Curve bottom-left
+        glVertex2f(-0.5f, -0.25f);  // Bottom-left
         glEnd();
 
-        // Swap buffers to render
+        // Fish tail
+        glColor3f(1.0f, 0.75f, 0.30f);
+        glBegin(GL_TRIANGLES);
+        glVertex2f(-0.3f, 0.0f);  // Left tip of the tail
+        glVertex2f(-0.70f, 0.45f); // Tail top left
+        glVertex2f(-0.70f, -0.45f); // Tail bottom left
+        glEnd();
+
+        // Fish head
+        glColor3f(1.0f, 0.75f, 0.30f); // Blue head
+        glBegin(GL_TRIANGLES);
+        glVertex2f(0.5f, 0.25f);   // Top corner
+        glVertex2f(0.5f, -0.25f);  // Bottom corner
+        glVertex2f(0.65f, 0.0f);    // Tip
+        glEnd();
+
+        // Fish fin on top
+        glColor3f(1.0f, 0.75f, 0.30f);
+        glBegin(GL_TRIANGLES);
+        glVertex2f(-0.2f, 0.4f);  // Base of the fish
+        glVertex2f(-0.0f, 0.65f); // Tip of the fin
+        glVertex2f(0.2f, 0.4f);   // Base of the fin
+        glEnd();
+
+        // Eye on the fish
+        glColor3f(0.0f, 0.0f, 0.0f); // Black eye
+        glPointSize(8.0f);
+        glBegin(GL_POINTS);
+        glVertex2f(0.5f, 0.1f);  // Eye position
+        glEnd();
+
+        // Health bar background (red)
+        glColor3f(1.0f, 0.0f, 0.0f); // Red background
+        glBegin(GL_QUADS);
+        glVertex2f(-0.8f, -0.6f);  // Top-left
+        glVertex2f(0.8f, -0.6f);   // Top-right
+        glVertex2f(0.8f, -0.7f);   // Bottom-right
+        glVertex2f(-0.8f, -0.7f);  // Bottom-left
+        glEnd();
+
+        // Health bar
+        float gaugeWidth = (1.6f * m_gaugeValue) / 10.0f;
+        glColor3f(0.0f, 1.0f, 0.0f); // Green bar
+        glBegin(GL_QUADS);
+        glVertex2f(-0.8f, -0.6f);
+        glVertex2f(-0.8f + gaugeWidth, -0.6f);
+        glVertex2f(-0.8f + gaugeWidth, -0.7f);
+        glVertex2f(-0.8f, -0.7f);
+        glEnd();
+
+        // Border for health bar
+        glColor3f(1.0f, 0.83f, 0.28f);
+        glLineWidth(2.5f);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(-0.8f, -0.6f);
+        glVertex2f(0.8f, -0.6f);
+        glVertex2f(0.8f, -0.7f);
+        glVertex2f(-0.8f, -0.7f);
+        glEnd();
+
         SwapBuffers();
     }
 
     void OnResize(wxSizeEvent& event) {
-        // Adjust the OpenGL viewport when the window is resized
         int width, height;
         GetClientSize(&width, &height);
         glViewport(0, 0, width, height);
@@ -92,71 +149,44 @@ class MyFrame : public wxFrame {
 public:
     MyFrame()
         : wxFrame(nullptr, wxID_ANY, "FISH TANK'D", wxDefaultPosition, wxSize(800, 600)) {
-
-        // Create a vertical box sizer
         wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-
-        // Create the OpenGL canvas
         m_canvas = new MyGLCanvas(this);
         sizer->Add(m_canvas, 1, wxEXPAND);
 
-        // Create a horizontal sizer for the button and point text
         wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-
-        // Creates the button
         wxButton* button = new wxButton(this, wxID_ANY, "FISH");
         button->Bind(wxEVT_BUTTON, &MyFrame::OnButtonClicked, this);
 
-        // Creates the points counter text
         m_pointsText = new wxStaticText(this, wxID_ANY, "Points Earned: 0", wxDefaultPosition, wxSize(150, 30), wxALIGN_LEFT);
-
-        // Creates the gauge bar value text
         m_gaugeText = new wxStaticText(this, wxID_ANY, "Health: 10", wxDefaultPosition, wxSize(150, 30), wxALIGN_LEFT);
 
-        // Adds the points text to the right of the button
         buttonSizer->Add(m_gaugeText, 0, wxALIGN_LEFT | wxRIGHT, 10);
         buttonSizer->Add(button, 0, wxALIGN_CENTER);
         buttonSizer->Add(m_pointsText, 0, wxALIGN_RIGHT | wxLEFT, 10);
-
-        // Adds the button sizer to the main sizer
         sizer->Add(buttonSizer, 0, wxALIGN_CENTER | wxBOTTOM, 10);
 
-        // Sets the sizer for the frame
         SetSizer(sizer);
-
-        // Loads sound file
-        m_sound = new wxSound("C:\\Users\\Michael Jerome Reyes\\source\\repos\\OpenGL_Game\\OpenGL_Game\\FISH.wav"); //Insert random .wav file
-    }
-
-    ~MyFrame() {
-        delete m_sound;
     }
 
 private:
     void OnButtonClicked(wxCommandEvent& event) {
         m_canvas->DecreaseGauge();
         UpdateUI();
-        PlaySound();  // Plays sound when button is clicked
+        PlaySoundOverlay();
     }
 
     void UpdateUI() {
-        // Updates the points counter
         m_pointsText->SetLabel("Points Earned: " + std::to_string(m_canvas->GetPoints()));
-
-        // Updates the health bar display
         m_gaugeText->SetLabel("Health: " + std::to_string(m_canvas->GetGaugeValue()));
     }
 
-    void PlaySound() {
-        if (m_sound->IsOk()) {
-            m_sound->Play(wxSOUND_ASYNC);
-        }
+    void PlaySoundOverlay() {
+        PlaySound(TEXT("C:\\Users\\Michael Jerome Reyes\\source\\repos\\OpenGL_Game\\OpenGL_Game\\FISH.wav"), NULL, SND_ASYNC | SND_NOSTOP);
     }
 
     MyGLCanvas* m_canvas;
     wxStaticText* m_pointsText;
     wxStaticText* m_gaugeText;
-    wxSound* m_sound;
 };
 
 class MyApp : public wxApp {
