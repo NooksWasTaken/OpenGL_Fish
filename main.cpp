@@ -11,7 +11,6 @@ public:
         m_context = new wxGLContext(this);
         SetBackgroundStyle(wxBG_STYLE_PAINT);
 
-        // Set the background color to grey (RGB: 0.5, 0.5, 0.5)
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
         // Bind events
