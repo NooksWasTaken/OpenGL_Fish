@@ -79,7 +79,7 @@ private:
         glEnd();
 
         // Fish head
-        glColor3f(1.0f, 0.75f, 0.30f); // Blue head
+        glColor3f(1.0f, 0.75f, 0.30f);
         glBegin(GL_TRIANGLES);
         glVertex2f(0.5f, 0.25f);   // Top corner
         glVertex2f(0.5f, -0.25f);  // Bottom corner
